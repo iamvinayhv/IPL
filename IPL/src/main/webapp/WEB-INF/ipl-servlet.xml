@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://www.springframework.org/schema/tx 
+    http://www.springframework.org/schema/tx/spring-tx.xsd
+    http://www.springframework.org/schema/mvc 
+    http://www.springframework.org/schema/mvc/spring-mvc.xsd
+    http://www.springframework.org/schema/context 
+    http://www.springframework.org/schema/context/spring-context.xsd">
+
+	<mvc:annotation-driven />
+	<mvc:resources location="/images/" mapping="/images/**"></mvc:resources>
+	<!--controller and services scan -->
+	<context:component-scan base-package="com.bridgeLabz.IPL.controller" />
+	<context:component-scan base-package="com.bridgeLabz.IPL.service" />
+	
+	
+	<bean id="playerService" class="com.bridgeLabz.IPL.service.PlayerServiceImpl"></bean>
+	<bean id="playerDao" class="com.bridgeLabz.IPL.dao.PlayerDaoImpl"></bean>
+	<bean id="json" class="com.bridgeLabz.IPL.util.ReadJson"></bean>
+	
+	<bean id="userService" class="com.bridgeLabz.IPL.service.UserServiceImpl"></bean>
+	<bean id="userDao" class="com.bridgeLabz.IPL.dao.UserDaoImpl"></bean>
+	
+
+	<!--To specify the view components -->
+	<bean
+		class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="prefix" value="/WEB-INF/jsp/"></property>
+		<property name="suffix" value=".jsp"></property>
+	</bean>
+		
+
+	<!-- Pooled data source. -->
+	<bean id="pooledDataSource" class="com.mchange.v2.c3p0.ComboPooledDataSource"
+		destroy-method="close">
+		<property name="driverClass" value="com.mysql.jdbc.Driver" />
+		<property name="jdbcUrl" value="jdbc:mysql://localhost:3306/IPL" />
+		<property name="user" value="root" />
+		<property name="password" value="tiger" />
+		
+	</bean>
+	
+	<bean id="sessionFactory"
+		class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
+		<property name="dataSource" ref="pooledDataSource" />
+		<property name="annotatedClasses">
+			<list>
+				<value>
+					com.bridgeLabz.IPL.model.Player
+				</value>
+				<value>
+					com.bridgeLabz.IPL.model.User
+				</value>
+				<value>
+					com.bridgeLabz.IPL.model.Teams
+				</value>
+			</list>
+		</property>
+		<property name="hibernateProperties">
+			<props>
+				<prop key="hibernate.dialect"> org.hibernate.dialect.MySQLDialect</prop>
+				<prop key="hibernate.show_sql">true</prop>
+				<prop key="hibernate.hbm2ddl.auto">update</prop>
+			</props>
+		</property>
+	</bean>
+
+	<bean id="transactionManager"
+		class="org.springframework.orm.hibernate4.HibernateTransactionManager">
+		<property name="sessionFactory" ref="sessionFactory" />
+	</bean>
+	<tx:annotation-driven transaction-manager="transactionManager"/>
+
+
+</beans>
